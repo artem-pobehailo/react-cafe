@@ -6,6 +6,11 @@ import VoteOptions from "../VoteOptions/VoteOptions";
 import VoteStats from "../VoteStats/VoteStats";
 import Notification from "../Notification/Notification";
 import type { VotesProps } from "../../types/Votes";
+import SearchBar from "../SearchBar/SearchBar";
+import fetchMovies from "../../services/movieService";
+import type { Movie } from "../../types/movie";
+import toast from "react-hot-toast";
+import MovieGrid from "../MovieGrid/MovieGrid";
 
 export default function App() {
   const [votes, setVotes] = useState<VotesProps>({
@@ -36,6 +41,31 @@ export default function App() {
     ? Math.round((votes.good / totalVotes) * 100)
     : 0;
 
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  async function handleSearch(query: string) {
+    setMovies([]);
+    setError(false);
+    setLoading(true);
+
+    try {
+      const results = await fetchMovies(query);
+      console.log("Results from API:", results);
+      if (!results || results.length === 0) {
+        toast.error("No movies found for your request.");
+        alert("No movies found for your request.");
+        return;
+      }
+      setMovies(results);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className={css.app}>
       <Cafeinfo />
@@ -53,6 +83,14 @@ export default function App() {
       ) : (
         <Notification />
       )}
+
+      <>
+        <SearchBar onSubmit={handleSearch} />
+      </>
+
+      <>
+        <MovieGrid />
+      </>
     </div>
   );
 }
