@@ -9,8 +9,11 @@ import type { VotesProps } from "../../types/Votes";
 import SearchBar from "../SearchBar/SearchBar";
 import fetchMovies from "../../services/movieService";
 import type { Movie } from "../../types/movie";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import MovieGrid from "../MovieGrid/MovieGrid";
+import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import MovieModal from "../MovieModal/MovieModal";
 
 export default function App() {
   const [votes, setVotes] = useState<VotesProps>({
@@ -44,6 +47,7 @@ export default function App() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   async function handleSearch(query: string) {
     setMovies([]);
@@ -55,7 +59,7 @@ export default function App() {
       console.log("Results from API:", results);
       if (!results || results.length === 0) {
         toast.error("No movies found for your request.");
-        alert("No movies found for your request.");
+
         return;
       }
       setMovies(results);
@@ -64,6 +68,13 @@ export default function App() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSelectMovie(movie: Movie) {
+    setSelectedMovie(movie);
+  }
+  function handleCloseModal() {
+    setSelectedMovie(null);
   }
 
   return (
@@ -86,10 +97,16 @@ export default function App() {
 
       <>
         <SearchBar onSubmit={handleSearch} />
-      </>
+        <Toaster position="top-center" />
+        {loading && <Loader />}
+        {error && <ErrorMessage />}
+        {!loading && !error && movies.length > 0 && (
+          <MovieGrid results={movies} onSelect={handleSelectMovie} />
+        )}
 
-      <>
-        <MovieGrid />
+        {selectedMovie && (
+          <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
+        )}
       </>
     </div>
   );
