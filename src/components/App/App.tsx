@@ -17,6 +17,13 @@ import MovieModal from "../MovieModal/MovieModal";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import ReactPaginate from "react-paginate";
 import toast, { Toaster } from "react-hot-toast";
+import NoteList from "../NoteList/NoteList";
+import fetchNotes from "../../services/noteService";
+import type { FetchNotesResponse } from "../../types/note";
+import Pagination from "../Pagination/Pagination";
+import SearchBarNotes from "../SearchBox/SearchBox";
+import ModalNotes from "../ModalNotes/Modal";
+import NoteForm from "../NoteForm/NoteForm";
 
 export default function App() {
   const [votes, setVotes] = useState<VotesProps>({
@@ -76,6 +83,22 @@ export default function App() {
     }
   }, [data, isLoading]);
 
+  const [perPage, setPerPage] = useState(12);
+  const {
+    data: dataNote,
+    isLoading: isLoadingNote,
+    isError: isErrorNote,
+  } = useQuery<FetchNotesResponse>({
+    queryKey: ["notes", page, perPage],
+    queryFn: () => fetchNotes({ page, perPage }),
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <div className={css.app}>
       <Cafeinfo />
@@ -121,6 +144,37 @@ export default function App() {
           <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
         )}
       </>
+
+      <div className={css.app}>
+        <header className={css.toolbar}>
+          <>
+            <SearchBarNotes onSubmit={handleSearch} />
+
+            {dataNote && dataNote.totalPages > 1 && (
+              <Pagination
+                totalPages={dataNote.totalPages}
+                page={page}
+                setPage={setPage}
+              />
+            )}
+            <div>
+              <button className={css.button} onClick={openModal}>
+                Create note +
+              </button>
+              {isModalOpen && (
+                <ModalNotes onClose={closeModal}>
+                  <NoteForm onSuccess={closeModal} />
+                </ModalNotes>
+              )}
+            </div>
+          </>
+        </header>
+        {isLoadingNote && <Loader />}
+        {isErrorNote && <ErrorMessage />}
+        {dataNote && dataNote.notes.length > 0 && (
+          <NoteList notes={dataNote.notes} />
+        )}
+      </div>
     </div>
   );
 }

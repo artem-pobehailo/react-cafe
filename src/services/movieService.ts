@@ -21,3 +21,5 @@ export default async function fetchMovies(query: string, page: number) {
   );
   return response.data;
 }
+
+
