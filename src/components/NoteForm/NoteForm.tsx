@@ -28,7 +28,7 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
     values: NewNoteData,
     actions: FormikHelpers<NewNoteData>
   ) => {
-    console.log("Order data:", values);
+    Mutation.mutate(values);
     actions.resetForm();
   };
 
@@ -45,14 +45,13 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
       initialValues={{ title: "", content: "", tag: "Todo" as Note["tag"] }}
       validationSchema={validationSchema}
       className={css.form}
-      // onSubmit={() => { Mutation.mutate(newNote) }}
       onSubmit={handleSubmit}
     >
       <Form>
         <div className={css.formGroup}>
           <label htmlFor={`${fieldId}-title`}>Title</label>
           <Field
-            id={`${fieldId}`}
+            id={`${fieldId}-title`}
             type="text"
             name="title"
             className={css.input}
@@ -63,7 +62,7 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
         <div className={css.formGroup}>
           <label htmlFor={`${fieldId}-content`}>Content</label>
           <Field
-            id={`${fieldId}`}
+            id={`${fieldId}-content`}
             name="content"
             rows={8}
             className={css.textarea}
@@ -75,7 +74,7 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
           <label htmlFor={`${fieldId}-tag`}>Tag</label>
           <Field
             as="select"
-            id={`${fieldId}`}
+            id={`${fieldId}-tag`}
             name="tag"
             className={css.select}
           >
@@ -89,7 +88,11 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
         </div>
 
         <div className={css.actions}>
-          <button type="button" className={css.cancelButton}>
+          <button
+            type="button"
+            className={css.cancelButton}
+            onClick={onSuccess}
+          >
             Cancel
           </button>
           <button
