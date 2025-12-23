@@ -24,6 +24,7 @@ import Pagination from "../Pagination/Pagination";
 import SearchBarNotes from "../SearchBox/SearchBox";
 import ModalNotes from "../ModalNotes/Modal";
 import NoteForm from "../NoteForm/NoteForm";
+import { useDebounce } from "use-debounce";
 
 export default function App() {
   const [votes, setVotes] = useState<VotesProps>({
@@ -84,14 +85,22 @@ export default function App() {
   }, [data, isLoading]);
 
   const [perPage, setPerPage] = useState(12);
+
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search, 500);
   const {
     data: dataNote,
     isLoading: isLoadingNote,
     isError: isErrorNote,
   } = useQuery<FetchNotesResponse>({
-    queryKey: ["notes", page, perPage],
-    queryFn: () => fetchNotes({ page, perPage }),
+    queryKey: ["notes", page, perPage, debouncedSearch],
+    queryFn: () => fetchNotes({ page, perPage, search: debouncedSearch }),
   });
+
+  function handleSearchNotes(newQuery: string) {
+    setSearch(newQuery);
+    setPage(1);
+  }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -148,7 +157,7 @@ export default function App() {
       <div className={css.app}>
         <header className={css.toolbar}>
           <>
-            <SearchBarNotes onSubmit={handleSearch} />
+            <SearchBarNotes onChange={handleSearchNotes} />
 
             {dataNote && dataNote.totalPages > 1 && (
               <Pagination
