@@ -27,7 +27,7 @@ const api = axios.create({
 export default async function fetchNotes({
   search = "",
   page = 1,
-  perPage = 6,
+  perPage = 12,
   tag,
 }: FetchNotesParams): Promise<FetchNotesResponse> {
   const params: Record<string, string | number> = { page, perPage };

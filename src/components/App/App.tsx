@@ -84,8 +84,6 @@ export default function App() {
     }
   }, [data, isLoading]);
 
-  const [perPage, setPerPage] = useState(12);
-
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
   const {
@@ -93,8 +91,8 @@ export default function App() {
     isLoading: isLoadingNote,
     isError: isErrorNote,
   } = useQuery<FetchNotesResponse>({
-    queryKey: ["notes", page, perPage, debouncedSearch],
-    queryFn: () => fetchNotes({ page, perPage, search: debouncedSearch }),
+    queryKey: ["notes", page, debouncedSearch],
+    queryFn: () => fetchNotes({ page, search: debouncedSearch }),
   });
 
   function handleSearchNotes(newQuery: string) {
