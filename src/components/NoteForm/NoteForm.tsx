@@ -5,6 +5,7 @@ import { createNote } from "../../services/noteService";
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
 import { useId } from "react";
 import * as Yup from "yup";
+import toast from "react-hot-toast";
 
 export interface NoteFormProps {
   onSuccess: () => void;
@@ -38,6 +39,10 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       onSuccess();
+      toast.success("Note created successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to create note. Try again.");
     },
   });
   return (
@@ -92,6 +97,7 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
             type="button"
             className={css.cancelButton}
             onClick={onSuccess}
+            disabled={Mutation.isPending}
           >
             Cancel
           </button>
